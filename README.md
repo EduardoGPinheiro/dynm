@@ -1,2 +1,1 @@
 # dynm
-Bayesian Dynamic Model

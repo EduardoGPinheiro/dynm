@@ -1,0 +1,28 @@
+*.pyc
+*.RData
+*.Rhistory
+*.Rproj.user
+*.Rproj
+# *.Rmd
+# *.R
+*.pypirc
+
+# Egg metadata
+*.egg-info
+
+# Node artifact files
+node_modules/
+dist/
+build/
+
+# Compiled Python bytecode
+*.py[cod]
+
+# Log files
+*.log
+
+# Package files
+*.jar
+
+__pycache__/
+.Rproj.user

@@ -111,7 +111,7 @@ def tidy_parameters(dict_parameters: dict, entry_m: str, entry_v: str,
     return df_state_parameters[["parameter", "mean", "variance"]]
 
 
-def add_credible_interval_studentt(
+def _add_credible_interval_studentt(
         pd_df: pd.DataFrame,
         entry_m: str,
         entry_v: str,
@@ -127,7 +127,7 @@ def add_credible_interval_studentt(
     return pd_df
 
 
-def add_credible_interval_gamma(
+def _add_credible_interval_gamma(
         pd_df: pd.DataFrame,
         entry_a: str,
         entry_b: str,
@@ -142,16 +142,25 @@ def add_credible_interval_gamma(
     return pd_df
 
 
-def create_mod_label_column(mod, t: int):
-    dlm_model_idx = mod.dlm.model_index_dict
-    dnm_model_idx = mod.dnm.model_index_dict
+def _create_mod_label_column(mod, t: int):
+    poly_mod = mod.dlm.polynomial_model
+    regr_mod = mod.dlm.regression_model
+    seas_mod = mod.dlm.seasonal_model
 
-    dlm_lb = np.concatenate([np.repeat(k, len(dlm_model_idx.get(k)))
-                             for k in dlm_model_idx.keys()])
-    dnm_lb = np.concatenate([np.repeat(k, len(dnm_model_idx.get(k)))
-                             for k in dnm_model_idx.keys()])
+    tf_mod = mod.dnm.transfer_function_model
+    ar_mod = mod.dnm.autoregressive_model
 
-    mod_lb = t * list(np.concatenate([dlm_lb, dnm_lb]))
+    poly_lb = np.repeat("polynomial", len(poly_mod.m))
+    regr_lb = np.repeat("regression", len(regr_mod.m))
+    seas_lb = np.repeat("seasonal", len(seas_mod.m))
+
+    ar_lb = np.repeat("autoregressive", len(ar_mod.m))
+    tf_lb = list(np.repeat(
+        ['transfer_function_' + str(i + 1) for i in range(tf_mod.ntfm)],
+        2 * tf_mod.lambda_order + tf_mod.gamma_order))
+
+    mod_lb = t * list(
+        np.concatenate([poly_lb, regr_lb, seas_lb, ar_lb, tf_lb]))
 
     return mod_lb
 
@@ -160,7 +169,7 @@ def _build_predictive_df(mod, dict_predict: dict, level: float):
     df_predictive = pd.DataFrame(dict_predict)
 
     # Compute credible intervals
-    df_predictive = add_credible_interval_studentt(
+    df_predictive = _add_credible_interval_studentt(
         pd_df=df_predictive, entry_m="f",
         entry_v="q", level=.05)
 
@@ -182,7 +191,7 @@ def _build_posterior_df(
         names_parameters=mod.names_parameters)
 
     # Create model labels
-    df_posterior["mod"] = create_mod_label_column(mod=mod, t=t)
+    df_posterior["mod"] = _create_mod_label_column(mod=mod, t=t)
 
     # Add time column on posterior_df
     if smooth:
@@ -197,7 +206,7 @@ def _build_posterior_df(
     df_posterior["variance"] = df_posterior["variance"].round(10)
 
     # Compute credible intervals
-    df_posterior = add_credible_interval_studentt(
+    df_posterior = _add_credible_interval_studentt(
         pd_df=df_posterior, entry_m="mean",
         entry_v="variance", level=.05)
 
@@ -218,7 +227,7 @@ def _build_variance_df(
     )
 
     # Organize observational variance
-    df_var = add_credible_interval_gamma(
+    df_var = _add_credible_interval_gamma(
         pd_df=df_var, entry_a="n", entry_b="d", level=level)
     df_var.drop(['d', 'n'], axis=1, inplace=True)
 

@@ -34,12 +34,6 @@ class NullModel():
         self.F = self._build_F()
         self.G = self._build_G()
 
-        # Get index for blocks
-        self.index_dict = {
-            'response': np.arange(0, 0),
-            'decay': np.arange(0, 0)
-        }
-
     def _update_F(self, x: np.array = None):
         return np.empty([0, 0]).reshape(-1, 1)
 

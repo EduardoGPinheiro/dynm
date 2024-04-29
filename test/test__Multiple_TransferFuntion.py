@@ -272,3 +272,25 @@ class TestMultipleTransferFunction(unittest.TestCase):
         mse2 = np.mean((fk-y)**2)
 
         self.assertTrue(mse2/mse1 <= 1.0)
+
+    def test__model_labels(self):
+        """Test models labels in posterior table."""
+        model_dict = {
+            "transfer_function": {"m0": m0,
+                                  "C0": C0,
+                                  "gamma_order": 1,
+                                  "lambda_order": 2,
+                                  "ntfm": 2,
+                                  "discount": np.repeat(1, 10)}
+        }
+
+        # Fit
+        mod = BayesianDynamicModel(model_dict=model_dict)\
+            .fit(y=y, X=X, smooth=True)
+
+        smooth_posterior = mod.dict_smooth.get("posterior").query("t == 500")
+        count_mod_parameters = smooth_posterior\
+            .groupby(['parameter', 'mod'])\
+            .size().max()
+
+        self.assertTrue(count_mod_parameters == 1.0)

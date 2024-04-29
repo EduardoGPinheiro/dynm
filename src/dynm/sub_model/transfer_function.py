@@ -103,6 +103,30 @@ class TransferFunction():
 
     def _build_h(self):
         ntfm = self.ntfm
+        order = self.lambda_order
+        G_ = copy.deepcopy(self.G)
+        C = copy.deepcopy(self.C)
+
+        for n in range(ntfm):
+            idx = np.ix_(self.index_dict.get(n).get('response'),
+                         self.index_dict.get(n).get('decay'))
+            G_[idx] = G_[idx] * 0.0
+
+        # First order taylor expasion component
+        m = self.m.T
+        h1 = (G_ - self.G) @ m.T
+
+        # Second order taylor expasion component
+        # I = np.identity(order)
+        # H = np.block([[0.0 * I, I], [I, 0.0 * I]])
+        #
+        # h2 = h1 * 0.0
+        # h2[0] = 1/2 * np.trace(H @ C[:4, :4])
+        #
+        # return h
+
+    def _build_H(self):
+        ntfm = self.ntfm
         G_ = copy.deepcopy(self.G)
 
         for n in range(ntfm):

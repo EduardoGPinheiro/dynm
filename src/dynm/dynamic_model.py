@@ -17,7 +17,9 @@ from dynm.utils import validation
 class BayesianDynamicModel():
     """Class for fitting, forecast and update bayesian dynamic models."""
 
-    def __init__(self, model_dict: dict, V: float = None):
+    def __init__(self, model_dict: dict, 
+                 V: float = None, 
+                 delvar: float = 1):
         """Define model.
 
         Define model with observation/system equations components
@@ -146,7 +148,8 @@ class BayesianDynamicModel():
         """
         self.model_dict = copy(model_dict)
         self.V = V
-
+        self.delvar = delvar
+        
         self._set_superposition_blocks()
 
         self._set_gamma_distribution_parameters()
@@ -397,7 +400,7 @@ class BayesianDynamicModel():
         """
         if self.estimate_V:
             self.r = (self.n + self.e**2 / self.q) / (self.n + 1)
-            self.n = self.n + 1
+            self.n = self.delvar * (self.n + 1)
             self.s = self.s * self.r
             self.d = self.s * self.n
         else:

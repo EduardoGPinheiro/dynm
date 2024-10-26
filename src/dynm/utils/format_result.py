@@ -171,7 +171,7 @@ def _build_predictive_df(mod, dict_predict: dict, level: float):
     # Compute credible intervals
     df_predictive = _add_credible_interval_studentt(
         pd_df=df_predictive, entry_m="f",
-        entry_v="q", level=.05)
+        entry_v="q", level=level)
 
     return df_predictive
 
@@ -208,7 +208,7 @@ def _build_posterior_df(
     # Compute credible intervals
     df_posterior = _add_credible_interval_studentt(
         pd_df=df_posterior, entry_m="mean",
-        entry_v="variance", level=.05)
+        entry_v="variance", level=level)
 
     return df_posterior
 
